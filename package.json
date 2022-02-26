@@ -25,6 +25,7 @@
     },
     "homepage": "https://github.com/Shahar-Y/redbit#readme",
     "dependencies": {
+        "env-var": "^7.1.1",
         "menashmq": "^0.1.6",
         "redis": "^4.0.4"
     },
@@ -36,6 +37,7 @@
         "eslint": "^8.9.0",
         "eslint-config-prettier": "^8.4.0",
         "eslint-plugin-eslint-comments": "^3.2.0",
-        "eslint-plugin-import": "^2.25.4"
+        "eslint-plugin-import": "^2.25.4",
+        "typescript": "^4.5.5"
     }
 }

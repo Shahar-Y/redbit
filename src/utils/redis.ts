@@ -12,9 +12,9 @@ export class Redis {
     await this.client.connect();
 
     this.client.on('error', (err) => console.log('Redis Client Error', err));
+  }
 
-    await this.client.set('foo?', 'bar!');
-
-    console.log(await this.client.get('foo?'));
+  static async setKey(key: string, value: string) {
+    await this.client.set(key, value);
   }
 }

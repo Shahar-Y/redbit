@@ -1,4 +1,4 @@
-import { menash, Topology } from 'menashmq';
+import { ConsumerMessage, menash, Topology } from 'menashmq';
 import { RabbitDataType } from '../paramTypes';
 import sleep from './general';
 
@@ -12,7 +12,6 @@ export function getRabbitHealthStatus(): boolean {
 
 export class Rabbit {
   rabbitData: RabbitDataType;
-
   healthCheckInterval = 30000;
 
   constructor(rabbitData: RabbitDataType) {
@@ -26,6 +25,7 @@ export class Rabbit {
   async initRabbit(): Promise<void> {
     console.log('initiating rabbit');
     await this.initConnection();
+    await this.initQueue();
   }
 
   /**
@@ -64,39 +64,11 @@ export class Rabbit {
   /**
    * Init rabbitmq queues and exchanges binding
    */
-  async initQueues(): Promise<void> {
-    // Create new topology
-    const topology: Topology = { queues: [], exchanges: [], bindings: [] };
+  async initQueue(): Promise<void> {
+    await menash.declareQueue(this.rabbitData.queueName);
 
-    const { queue } = this.rabbitData;
-
-    // If queue not exists, create it
-    // TODO: change topology!
-    if (!(queue.name in menash.queues)) {
-      topology.queues?.push({
-        name: queue.name,
-        options: { durable: true },
-      });
-
-      // If exchange is set, create exchange
-      if (queue.exchange) {
-        if (!(queue.exchange.name in menash.exchanges))
-          topology.exchanges?.push({
-            name: queue.exchange.name,
-            type: queue.exchange.type,
-          });
-
-        // If queue is bound to an exchange, bind it
-        if (menash.bindings.bindings.length < 1) {
-          topology.bindings?.push({
-            source: queue.exchange.name,
-            destination: queue.name,
-            pattern: queue.exchange.routingKey,
-          });
-        }
-      }
-    }
-
-    await menash.declareTopology(topology);
+    await menash
+      .queue(this.rabbitData.queueName)
+      .activateConsumer(this.rabbitData.msgHandlerFunction);
   }
 }

@@ -1,8 +1,21 @@
-import { RabbitDataType } from './paramTypes';
+import { ConsumerMessage } from 'menashmq';
+import { RabbitDataType, RedisDataType } from './paramTypes';
+import { handleMessage } from './rabbitToRedis';
 import { Rabbit } from './utils/rabbit';
 import { Redis } from './utils/redis';
 
-async function initRedbit(rabbitData: RabbitDataType) {
+/**
+ * defaultHandler - only logs the rabbit messages.
+ * @param msg - the message received.
+ */
+const defaultHandler = (msg: ConsumerMessage) => {
+  const content = msg.getContent();
+  console.log(`New content: ${content}`);
+
+  msg.ack();
+};
+
+export async function initRedbit(rabbitData: RabbitDataType, redisData: RedisDataType) {
   Redis.connect();
 
   const rabbitConn = new Rabbit(rabbitData);
@@ -14,8 +27,16 @@ async function initRedbit(rabbitData: RabbitDataType) {
 }
 
 const myRabbitData: RabbitDataType = {
-  queue: { name: 'MyQueueName' },
+  msgHandlerFunction: handleMessage,
+  queueName: 'MyQueueName',
   rabbitURI: 'amqp://localhost',
 };
 
-initRedbit(myRabbitData);
+const myRedisData: RedisDataType = {
+  host: 'localhost',
+  port: 6379,
+  password: '',
+  dbIndex: 0,
+};
+
+initRedbit(myRabbitData, myRedisData);
