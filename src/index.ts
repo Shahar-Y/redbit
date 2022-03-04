@@ -16,7 +16,7 @@ const defaultHandler = (msg: ConsumerMessage) => {
 };
 
 export async function initRedbit(rabbitData: RabbitDataType, redisData: RedisDataType) {
-  Redis.connect();
+  Redis.connect(redisData);
 
   const rabbitConn = new Rabbit(rabbitData);
 

@@ -1,20 +1,38 @@
 import * as redis from 'redis';
+import { RedisDataType } from '../paramTypes';
 import { config } from '../config';
 
 export class Redis {
   static client: redis.RedisClientType;
 
-  static async connect(dbIndex = 0) {
-    this.client = await redis.createClient({
-      url: 'redis://localhost:6379',
-    });
+  static async connect(redisData: RedisDataType) {
+    this.client = redis.createClient(redisData);
 
     await this.client.connect();
 
     this.client.on('error', (err) => console.log('Redis Client Error', err));
   }
 
-  static async setKey(key: string, value: string) {
+  /**
+   * getKey - gets a value from redis by agiven key.
+   * @param key - the key to get.
+   */
+  static async getKey(key: string) {
+    return await this.client.get(key);
+  }
+
+  /**
+   * setKey - sets a key in redis.
+   * @param key - the key to set
+   * @param value - the value to set
+   * @param expire - the expire time in seconds
+   */
+  static async setKey(key: string, value: string, expire?: number) {
+    console.log(`Setting ${key} to ${value} with expire ${expire}`);
     await this.client.set(key, value);
+
+    if (expire) {
+      await this.client.expire(key, expire);
+    }
   }
 }

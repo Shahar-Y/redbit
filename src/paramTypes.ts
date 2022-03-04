@@ -1,4 +1,6 @@
+import Joi from '@hapi/joi';
 import { ConsumerMessage, ExchangeType } from 'menashmq';
+import 'joi-extract-type';
 
 export type RedisDataType = {
   host: string;
@@ -27,3 +29,13 @@ export type QueueObjectType = {
 };
 
 export type MessageHandler = (msg: ConsumerMessage) => void;
+
+export const CacheMessageSchema = Joi.object({
+  key: Joi.string().max(100).required(),
+  value: Joi.string().alphanum().max(3000).required(),
+  expire: Joi.number()
+    .min(1)
+    .max(1 * 60 * 60 * 24),
+});
+
+export type MessageType = Joi.extractType<typeof CacheMessageSchema>;
