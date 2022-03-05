@@ -2,6 +2,11 @@ import Joi from '@hapi/joi';
 import { ConsumerMessage, ExchangeType } from 'menashmq';
 import 'joi-extract-type';
 
+export type RDBTOptions = {
+  silent: boolean;
+  prettify: boolean;
+};
+
 export type RedisDataType = {
   host: string;
   port: number;

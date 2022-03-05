@@ -1,6 +1,7 @@
-import { ConsumerMessage, menash, Topology } from 'menashmq';
+import { menash } from 'menashmq';
 import { RabbitDataType } from '../paramTypes';
-import sleep from './general';
+import sleep from '../utils/general';
+import { logger } from '../index';
 
 /**
  * Check rabbit health status
@@ -23,7 +24,7 @@ export class Rabbit {
    * Init rabbitmq (connection and queues)
    */
   async initRabbit(): Promise<void> {
-    console.log('initiating rabbit');
+    logger.log('initiating rabbit');
     await this.initConnection();
     await this.initQueue();
   }
@@ -33,15 +34,15 @@ export class Rabbit {
    */
   async initConnection(): Promise<void> {
     // Initialize rabbit connection if the conn isn't ready yet
-    console.log(`connecting to rabbitMQ on URI: ${this.rabbitData.rabbitURI} ...`);
+    logger.log(`connecting to rabbitMQ on URI: ${this.rabbitData.rabbitURI} ...`);
 
     if (!getRabbitHealthStatus()) {
       await menash.connect(this.rabbitData.rabbitURI, {
         retries: this.rabbitData.rabbitRetries,
       });
-      console.log(`successful connection to rabbitMQ on URI: ${this.rabbitData.rabbitURI}`);
+      logger.log(`successful connection to rabbitMQ on URI: ${this.rabbitData.rabbitURI}`);
     } else {
-      console.log(`rabbit ${this.rabbitData.rabbitURI} already connected`);
+      logger.log(`rabbit ${this.rabbitData.rabbitURI} already connected`);
     }
   }
 

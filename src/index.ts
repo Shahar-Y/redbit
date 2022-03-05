@@ -1,35 +1,45 @@
-import { ConsumerMessage } from 'menashmq';
-import { RabbitDataType, RedisDataType } from './paramTypes';
+import { config } from './config';
+import Logger from './utils/logger';
+import { RabbitDataType, RDBTOptions, RedisDataType } from './paramTypes';
 import { handleMessage } from './rabbitToRedis';
-import { Rabbit } from './utils/rabbit';
-import { Redis } from './utils/redis';
+import { Rabbit } from './infrastructure/rabbit';
+import { Redis } from './infrastructure/redis';
+
+// Default variables
+const defaultOptions: RDBTOptions = { silent: true, prettify: true };
+
+export let logger: Logger;
 
 /**
- * defaultHandler - only logs the rabbit messages.
- * @param msg - the message received.
+ * The main logic of the package.
+ * Receiving the rabbit message and translating it to the wanted redis caching method.
+ * @param rabbitData - Information about the rabbit connection.
+ * @param redisData - Information about the redis connection.
+ * @param options - An optional parameter. Defaults to { silent: true, prettify: true }.
  */
-const defaultHandler = (msg: ConsumerMessage) => {
-  const content = msg.getContent();
-  console.log(`New content: ${content}`);
+export async function initRedbit(
+  rabbitData: RabbitDataType,
+  redisData: RedisDataType,
+  opts?: Partial<RDBTOptions>
+) {
+  const options: RDBTOptions = { ...defaultOptions, ...opts };
+  logger = new Logger(options);
 
-  msg.ack();
-};
-
-export async function initRedbit(rabbitData: RabbitDataType, redisData: RedisDataType) {
   Redis.connect(redisData);
 
-  const rabbitConn = new Rabbit(rabbitData);
+  const rabbitConn: Rabbit = new Rabbit(rabbitData);
 
   // Init rabbit connection
   await rabbitConn.initRabbit();
   rabbitConn.ensureRabbitHealth();
-  console.log('successful connection to all queues in rabbit');
+
+  logger.log('successful connection to all queues in rabbit');
 }
 
 const myRabbitData: RabbitDataType = {
   msgHandlerFunction: handleMessage,
-  queueName: 'MyQueueName',
-  rabbitURI: 'amqp://localhost',
+  queueName: config.rabbit.queues.cachingQueue,
+  rabbitURI: config.rabbit.uri,
 };
 
 const myRedisData: RedisDataType = {

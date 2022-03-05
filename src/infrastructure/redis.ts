@@ -1,6 +1,6 @@
 import * as redis from 'redis';
 import { RedisDataType } from '../paramTypes';
-import { config } from '../config';
+import { logger } from '../index';
 
 export class Redis {
   static client: redis.RedisClientType;
@@ -10,7 +10,7 @@ export class Redis {
 
     await this.client.connect();
 
-    this.client.on('error', (err) => console.log('Redis Client Error', err));
+    this.client.on('error', (err) => logger.log(`Redis Client Error: , ${err.message}`));
   }
 
   /**
@@ -28,7 +28,7 @@ export class Redis {
    * @param expire - the expire time in seconds
    */
   static async setKey(key: string, value: string, expire?: number) {
-    console.log(`Setting ${key} to ${value} with expire ${expire}`);
+    logger.log(`Setting ${key} to ${value} with expire ${expire}`);
     await this.client.set(key, value);
 
     if (expire) {
