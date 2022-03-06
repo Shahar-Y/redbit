@@ -1,9 +1,9 @@
-import { config } from './config';
-import Logger from './utils/logger';
+import { defaults } from './config';
 import { RabbitDataType, RDBTOptions, RedisDataType } from './paramTypes';
 import { handleMessage } from './rabbitToRedis';
 import { Rabbit } from './infrastructure/rabbit';
 import { Redis } from './infrastructure/redis';
+import Logger from './utils/logger';
 
 // Default variables
 const defaultOptions: RDBTOptions = { silent: true, prettify: true };
@@ -38,8 +38,8 @@ export async function initRedbit(
 
 const myRabbitData: RabbitDataType = {
   msgHandlerFunction: handleMessage,
-  queueName: config.rabbit.queues.cachingQueue,
-  rabbitURI: config.rabbit.uri,
+  queueName: defaults.rabbit.queues.cachingQueue,
+  rabbitURI: defaults.rabbit.uri,
 };
 
 const myRedisData: RedisDataType = {

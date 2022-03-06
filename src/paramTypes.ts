@@ -1,6 +1,6 @@
-import Joi from '@hapi/joi';
-import { ConsumerMessage, ExchangeType } from 'menashmq';
 import 'joi-extract-type';
+import * as Joi from '@hapi/joi';
+import { ConsumerMessage, ExchangeType } from 'menashmq';
 
 export type RDBTOptions = {
   silent: boolean;
@@ -18,7 +18,7 @@ export type RabbitDataType = {
   queueName: string;
   msgHandlerFunction: MessageHandler;
   rabbitURI: string;
-  rabbitRetries?: number;
+  healthCheckRetries?: number;
   healthCheckInterval?: number;
 };
 

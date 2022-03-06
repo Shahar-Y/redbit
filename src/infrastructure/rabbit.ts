@@ -1,7 +1,8 @@
 import { menash } from 'menashmq';
 import { RabbitDataType } from '../paramTypes';
-import sleep from '../utils/general';
 import { logger } from '../index';
+import sleep from '../utils/general';
+import { defaults } from '../config';
 
 /**
  * Check rabbit health status
@@ -13,11 +14,17 @@ export function getRabbitHealthStatus(): boolean {
 
 export class Rabbit {
   rabbitData: RabbitDataType;
-  healthCheckInterval = 30000;
+  healthCheckInterval: number;
+  healthCheckRetries: number;
 
   constructor(rabbitData: RabbitDataType) {
     this.rabbitData = rabbitData;
-    if (rabbitData.healthCheckInterval) this.healthCheckInterval = rabbitData.healthCheckInterval;
+    this.healthCheckInterval = rabbitData.healthCheckInterval
+      ? rabbitData.healthCheckInterval
+      : defaults.rabbit.healthCheckInterval;
+    this.healthCheckRetries = rabbitData.healthCheckRetries
+      ? rabbitData.healthCheckRetries
+      : defaults.rabbit.healthCheckRetries;
   }
 
   /**
@@ -38,7 +45,7 @@ export class Rabbit {
 
     if (!getRabbitHealthStatus()) {
       await menash.connect(this.rabbitData.rabbitURI, {
-        retries: this.rabbitData.rabbitRetries,
+        retries: this.healthCheckRetries,
       });
       logger.log(`successful connection to rabbitMQ on URI: ${this.rabbitData.rabbitURI}`);
     } else {
